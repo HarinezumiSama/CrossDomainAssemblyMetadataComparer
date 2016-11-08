@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace CrossDomainAssemblyMetadataComparer.Core
+namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
     public sealed class FileSystemAssemblyReference : AssemblyReference
     {
@@ -37,6 +37,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core
             FileInfo = new FileInfo(filePath);
         }
 
+        [NotNull]
         public FileInfo FileInfo
         {
             get;
