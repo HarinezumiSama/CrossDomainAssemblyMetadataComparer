@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using CrossDomainAssemblyMetadataComparer.Core.Model;
 using JetBrains.Annotations;
@@ -14,7 +15,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core
 
         public MetadataComparer(
             [NotNull] AssemblyReference examineeAssemblyReference,
-            [NotNull] AssemblyReference comparandAssemblyReference,
+            [NotNull] ICollection<AssemblyReference> comparandAssemblyReferences,
             [NotNull] MetadataComparisonParameters parameters)
         {
             if (examineeAssemblyReference == null)
@@ -22,9 +23,16 @@ namespace CrossDomainAssemblyMetadataComparer.Core
                 throw new ArgumentNullException(nameof(examineeAssemblyReference));
             }
 
-            if (comparandAssemblyReference == null)
+            if (comparandAssemblyReferences == null)
             {
-                throw new ArgumentNullException(nameof(comparandAssemblyReference));
+                throw new ArgumentNullException(nameof(comparandAssemblyReferences));
+            }
+
+            if (comparandAssemblyReferences.Any(item => item == null))
+            {
+                throw new ArgumentException(
+                    @"The collection contains a null element.",
+                    nameof(comparandAssemblyReferences));
             }
 
             if (parameters == null)
@@ -33,14 +41,31 @@ namespace CrossDomainAssemblyMetadataComparer.Core
             }
 
             ExamineeAssemblyReference = examineeAssemblyReference;
-            ComparandAssemblyReference = comparandAssemblyReference;
+            ComparandAssemblyReferences = comparandAssemblyReferences.ToArray().AsReadOnly();
             Parameters = parameters;
         }
 
         public MetadataComparer(
             [NotNull] AssemblyReference examineeAssemblyReference,
+            [NotNull] AssemblyReference comparandAssemblyReference,
+            [NotNull] MetadataComparisonParameters parameters)
+            : this(examineeAssemblyReference, comparandAssemblyReference.AsArray(), parameters)
+        {
+            // Nothing to do
+        }
+
+        public MetadataComparer(
+            [NotNull] AssemblyReference examineeAssemblyReference,
+            [NotNull] ICollection<AssemblyReference> comparandAssemblyReferences)
+            : this(examineeAssemblyReference, comparandAssemblyReferences, MetadataComparisonParameters.Default)
+        {
+            // Nothing to do
+        }
+
+        public MetadataComparer(
+            [NotNull] AssemblyReference examineeAssemblyReference,
             [NotNull] AssemblyReference comparandAssemblyReference)
-            : this(examineeAssemblyReference, comparandAssemblyReference, MetadataComparisonParameters.Default)
+            : this(examineeAssemblyReference, comparandAssemblyReference.AsArray())
         {
             // Nothing to do
         }
@@ -52,7 +77,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core
         }
 
         [NotNull]
-        public AssemblyReference ComparandAssemblyReference
+        public ReadOnlyCollection<AssemblyReference> ComparandAssemblyReferences
         {
             get;
         }
@@ -66,10 +91,10 @@ namespace CrossDomainAssemblyMetadataComparer.Core
         public MetadataComparisonResult Compare()
         {
             var examineeAssembly = ExamineeAssemblyReference.Load();
-            var comparandAssembly = ComparandAssemblyReference.Load();
+            var comparandAssemblies = ComparandAssemblyReferences.Select(reference => reference.Load()).ToArray();
 
             var examineeTypes = examineeAssembly.GetTypes();
-            var comparandTypes = comparandAssembly.GetTypes();
+            var comparandTypes = comparandAssemblies.SelectMany(assembly => assembly.GetTypes()).ToArray();
 
             var enumComparisonResult = ProcessEnums(examineeTypes, comparandTypes);
 
@@ -133,7 +158,11 @@ namespace CrossDomainAssemblyMetadataComparer.Core
                     {
                         var examineeName = examineeEnum.GetEnumName(value);
                         var comparandName = comparandEnum.GetEnumName(value);
-                        return new EnumValueComparisonResult(examineeName, comparandName, DetermineEnumValueMatchKind(examineeName, comparandName));
+                        return new EnumValueComparisonResult(
+                            value,
+                            examineeName,
+                            comparandName,
+                            DetermineEnumValueMatchKind(examineeName, comparandName));
                     })
                 .ToArray();
 
@@ -144,6 +173,8 @@ namespace CrossDomainAssemblyMetadataComparer.Core
             [CanBeNull] string examineeName,
             [CanBeNull] string comparandName)
         {
+            //// TODO [vmaklai] DetermineEnumValueMatchKind: User defined case
+
             if (examineeName.IsNullOrEmpty())
             {
                 return EnumValueMatchKind.NoExaminee;

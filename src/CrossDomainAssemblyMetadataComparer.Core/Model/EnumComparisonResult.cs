@@ -27,10 +27,18 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             }
 
             ValueComparisonResults = valueComparisonResults.ToArray().AsReadOnly();
+
+            var innerOverallMatchKinds = ValueComparisonResults.Select(obj => obj.OverallMatchKind).ToArray();
+            OverallMatchKind = BaseOverallMatchKind.ComputeOverallMatchKind(innerOverallMatchKinds);
         }
 
         [NotNull]
         public ReadOnlyCollection<EnumValueComparisonResult> ValueComparisonResults
+        {
+            get;
+        }
+
+        public override OverallMatchKind OverallMatchKind
         {
             get;
         }

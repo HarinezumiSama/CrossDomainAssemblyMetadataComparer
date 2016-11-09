@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CrossDomainAssemblyMetadataComparer.Core.Model;
 using JetBrains.Annotations;
+using Omnifactotum;
 
 namespace CrossDomainAssemblyMetadataComparer.Core
 {
@@ -67,6 +69,82 @@ namespace CrossDomainAssemblyMetadataComparer.Core
             }
 
             return types.Where(t => t.IsEnum).ToArray();
+        }
+
+        public static OverallMatchKind ToOverallMatchKind(this EnumValueMatchKind enumValueMatchKind)
+        {
+            switch (enumValueMatchKind)
+            {
+                case EnumValueMatchKind.Strict:
+                    return OverallMatchKind.Strict;
+
+                case EnumValueMatchKind.CaseInsensitive:
+                    return OverallMatchKind.CaseInsensitive;
+
+                case EnumValueMatchKind.UserDefined:
+                    return OverallMatchKind.UserDefined;
+
+                case EnumValueMatchKind.DifferentNames:
+                case EnumValueMatchKind.NoExaminee:
+                case EnumValueMatchKind.NoComparand:
+                    return OverallMatchKind.MismatchEncountered;
+
+                default:
+                    throw enumValueMatchKind.CreateEnumValueNotImplementedException();
+            }
+        }
+
+        public static OverallMatchKind ToOverallMatchKind(this TypeMatchKind typeMatchKind)
+        {
+            switch (typeMatchKind)
+            {
+                case TypeMatchKind.Strict:
+                    return OverallMatchKind.Strict;
+
+                case TypeMatchKind.CaseInsensitive:
+                    return OverallMatchKind.CaseInsensitive;
+
+                case TypeMatchKind.UserDefined:
+                    return OverallMatchKind.UserDefined;
+
+                case TypeMatchKind.None:
+                case TypeMatchKind.Ambiguous:
+                    return OverallMatchKind.MismatchEncountered;
+
+                default:
+                    throw typeMatchKind.CreateEnumValueNotImplementedException();
+            }
+        }
+
+        public static OverallMatchKind? ComputeOverallMatchKind(
+            [NotNull] this ICollection<OverallMatchKind> innerOverallMatchKinds)
+        {
+            if (innerOverallMatchKinds == null)
+            {
+                throw new ArgumentNullException(nameof(innerOverallMatchKinds));
+            }
+
+            return innerOverallMatchKinds.Count == 0 ? (OverallMatchKind?)null : innerOverallMatchKinds.Max();
+        }
+
+        public static OverallMatchKind ComputeOverallMatchKind(
+            this OverallMatchKind baseOverallMatchKind,
+            [NotNull] ICollection<OverallMatchKind> innerOverallMatchKinds)
+        {
+            if (innerOverallMatchKinds == null)
+            {
+                throw new ArgumentNullException(nameof(innerOverallMatchKinds));
+            }
+
+            var result = baseOverallMatchKind;
+
+            var computedInnerOverallMatchKind = innerOverallMatchKinds.ComputeOverallMatchKind();
+            if (computedInnerOverallMatchKind.HasValue)
+            {
+                result = Factotum.Max(result, computedInnerOverallMatchKind.Value);
+            }
+
+            return result;
         }
     }
 }

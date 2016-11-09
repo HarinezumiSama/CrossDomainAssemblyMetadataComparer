@@ -82,5 +82,8 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
         {
             get;
         }
+
+        public override string ToString()
+            => $@"{GetType().GetQualifiedName()}: {nameof(Kind)} = {Kind}";
     }
 }

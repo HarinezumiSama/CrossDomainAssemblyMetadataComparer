@@ -14,11 +14,13 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Tests
                 new FileSystemAssemblyReference(
                     @"C:\Src\Tfs\MobiControl\Common\DeploymentServerExtensions.Facade\v1\DeploymentServerExtensions.Facade\bin\Debug\Soti.MobiControl.DeploymentServerExtensions.Facade.dll");
 
-            var comparandAssemblyReference =
+            var comparandAssemblyReferences = new[]
+            {
                 new FileSystemAssemblyReference(
-                    @"C:\Src\Tfs\MobiControl\DEV\MobiControl\MobiControl .NET\Entities\bin\Debug\Soti.MobiControl.Entities.dll");
+                    @"C:\Src\Tfs\MobiControl\DEV\MobiControl\MobiControl .NET\Entities\bin\Debug\Soti.MobiControl.Entities.dll")
+            };
 
-            var comparer = new MetadataComparer(examineeAssemblyReference, comparandAssemblyReference);
+            var comparer = new MetadataComparer(examineeAssemblyReference, comparandAssemblyReferences);
             var comparisonResult = comparer.Compare();
             Assert.That(comparisonResult, Is.Not.Null);
         }

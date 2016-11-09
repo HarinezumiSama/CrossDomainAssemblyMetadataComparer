@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\AssemblyReference.cs" />
+    <Compile Include="Model\OverallMatchKind.cs" />
     <Compile Include="Model\TypeComparisonResult.cs" />
     <Compile Include="Model\EnumValueMatchKind.cs" />
     <Compile Include="Model\EnumValueComparisonResult.cs" />

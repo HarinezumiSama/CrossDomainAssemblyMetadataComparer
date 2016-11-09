@@ -21,6 +21,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
 
             ExamineeType = examineeType;
             TypeMatch = typeMatch;
+            BaseOverallMatchKind = typeMatch.Kind.ToOverallMatchKind();
         }
 
         [NotNull]
@@ -35,9 +36,18 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             get;
         }
 
+        public abstract OverallMatchKind OverallMatchKind
+        {
+            get;
+        }
+
         public override string ToString()
-            => $@"{GetType().GetQualifiedName()}: {nameof(ExamineeType)} = {
-                ExamineeType.GetFullName().ToUIString()}, {nameof(TypeMatch)}.{nameof(TypeMatch.Kind)} = {
-                TypeMatch.Kind}";
+            => $@"{GetType().GetQualifiedName()}: {nameof(OverallMatchKind)} = {OverallMatchKind}, {
+                nameof(ExamineeType)} = {ExamineeType.GetFullName().ToUIString()}";
+
+        protected OverallMatchKind BaseOverallMatchKind
+        {
+            get;
+        }
     }
 }

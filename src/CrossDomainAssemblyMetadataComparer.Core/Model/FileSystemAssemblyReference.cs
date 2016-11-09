@@ -43,7 +43,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             get;
         }
 
-        public override string AsString => $@"{{ Assembly File ""{FileInfo.FullName}"" }}";
+        public override string AsString => $@"{{ {GetType().GetQualifiedName()}: Path = ""{FileInfo.FullName}"" }}";
 
         protected override Assembly LoadAssembly() => Assembly.LoadFrom(FileInfo.FullName);
     }

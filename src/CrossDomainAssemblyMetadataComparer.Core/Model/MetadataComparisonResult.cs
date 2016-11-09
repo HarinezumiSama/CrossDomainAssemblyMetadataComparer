@@ -21,6 +21,9 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             }
 
             EnumComparisonResults = enumComparisonResults.ToArray().AsReadOnly();
+
+            var innerOverallMatchKinds = EnumComparisonResults.Select(obj => obj.OverallMatchKind).ToArray();
+            OverallMatchKind = innerOverallMatchKinds.ComputeOverallMatchKind();
         }
 
         [NotNull]
@@ -28,5 +31,13 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
         {
             get;
         }
+
+        public OverallMatchKind? OverallMatchKind
+        {
+            get;
+        }
+
+        public override string ToString()
+            => $@"{GetType().GetQualifiedName()}: {nameof(OverallMatchKind)} = {OverallMatchKind.ToUIString()}";
     }
 }
