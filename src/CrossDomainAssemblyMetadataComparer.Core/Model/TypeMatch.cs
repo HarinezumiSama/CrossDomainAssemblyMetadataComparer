@@ -9,6 +9,8 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
     public sealed class TypeMatch
     {
+        internal static readonly TypeMatch None = new TypeMatch(TypeMatchKind.None, Type.EmptyTypes);
+
         private const int MinFoundWhenAmbiguous = 2;
 
         internal TypeMatch(TypeMatchKind kind, [NotNull] ICollection<Type> foundTypes)
@@ -30,6 +32,16 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
 
             switch (kind)
             {
+                case TypeMatchKind.None:
+                    if (foundTypes.Count != 0)
+                    {
+                        throw new ArgumentException(
+                            $@"There must be exactly zero types found when '{nameof(kind)}' is <{kind}>.",
+                            nameof(foundTypes));
+                    }
+
+                    break;
+
                 case TypeMatchKind.Strict:
                 case TypeMatchKind.CaseInsensitive:
                 case TypeMatchKind.UserDefined:

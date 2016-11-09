@@ -9,6 +9,9 @@ namespace CrossDomainAssemblyMetadataComparer.Core
 {
     public sealed class MetadataComparer
     {
+        private static readonly StringComparer StrictIdentifierComparer = StringComparer.Ordinal;
+        private static readonly StringComparer IgnoreCaseIdentifierComparer = StringComparer.OrdinalIgnoreCase;
+
         public MetadataComparer(
             [NotNull] AssemblyReference examineeAssemblyReference,
             [NotNull] AssemblyReference comparandAssemblyReference,
@@ -107,7 +110,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core
                         throw typeMatch.Kind.CreateEnumValueNotImplementedException();
                 }
 
-                var enumComparisonResult = new EnumComparisonResult(typeMatch, valueComparisonResults);
+                var enumComparisonResult = new EnumComparisonResult(examineeEnum, typeMatch, valueComparisonResults);
                 enumComparisonResults.Add(enumComparisonResult);
             }
 
@@ -115,7 +118,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core
         }
 
         [NotNull]
-        private ICollection<EnumValueComparisonResult> ProcessEnumValues(
+        private static ICollection<EnumValueComparisonResult> ProcessEnumValues(
             [NotNull] Type examineeEnum,
             [NotNull] Type comparandEnum)
         {
@@ -130,11 +133,38 @@ namespace CrossDomainAssemblyMetadataComparer.Core
                     {
                         var examineeName = examineeEnum.GetEnumName(value);
                         var comparandName = comparandEnum.GetEnumName(value);
-                        return new EnumValueComparisonResult(examineeName, comparandName);
+                        return new EnumValueComparisonResult(examineeName, comparandName, DetermineEnumValueMatchKind(examineeName, comparandName));
                     })
                 .ToArray();
 
             return results;
+        }
+
+        private static EnumValueMatchKind DetermineEnumValueMatchKind(
+            [CanBeNull] string examineeName,
+            [CanBeNull] string comparandName)
+        {
+            if (examineeName.IsNullOrEmpty())
+            {
+                return EnumValueMatchKind.NoExaminee;
+            }
+
+            if (comparandName.IsNullOrEmpty())
+            {
+                return EnumValueMatchKind.NoComparand;
+            }
+
+            if (StrictIdentifierComparer.Equals(examineeName, comparandName))
+            {
+                return EnumValueMatchKind.Strict;
+            }
+
+            if (IgnoreCaseIdentifierComparer.Equals(examineeName, comparandName))
+            {
+                return EnumValueMatchKind.Strict;
+            }
+
+            return EnumValueMatchKind.DifferentNames;
         }
     }
 }

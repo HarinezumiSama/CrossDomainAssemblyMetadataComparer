@@ -6,17 +6,14 @@ using JetBrains.Annotations;
 
 namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
-    public sealed class EnumComparisonResult
+    public sealed class EnumComparisonResult : TypeComparisonResult
     {
         internal EnumComparisonResult(
+            [NotNull] Type examineeType,
             [NotNull] TypeMatch typeMatch,
             [NotNull] ICollection<EnumValueComparisonResult> valueComparisonResults)
+            : base(examineeType, typeMatch)
         {
-            if (typeMatch == null)
-            {
-                throw new ArgumentNullException(nameof(typeMatch));
-            }
-
             if (valueComparisonResults == null)
             {
                 throw new ArgumentNullException(nameof(valueComparisonResults));
@@ -29,15 +26,10 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
                     nameof(valueComparisonResults));
             }
 
-            TypeMatch = typeMatch;
             ValueComparisonResults = valueComparisonResults.ToArray().AsReadOnly();
         }
 
-        public TypeMatch TypeMatch
-        {
-            get;
-        }
-
+        [NotNull]
         public ReadOnlyCollection<EnumValueComparisonResult> ValueComparisonResults
         {
             get;

@@ -5,10 +5,14 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
     public sealed class EnumValueComparisonResult
     {
-        internal EnumValueComparisonResult([CanBeNull] string examineeName, [CanBeNull] string comparandName)
+        internal EnumValueComparisonResult(
+            [CanBeNull] string examineeName,
+            [CanBeNull] string comparandName,
+            EnumValueMatchKind matchKind)
         {
             ExamineeName = examineeName;
             ComparandName = comparandName;
+            MatchKind = matchKind;
         }
 
         public string ExamineeName
@@ -20,5 +24,14 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
         {
             get;
         }
+
+        public EnumValueMatchKind MatchKind
+        {
+            get;
+        }
+
+        public override string ToString()
+            => $@"{GetType().GetQualifiedName()}: {nameof(MatchKind)} = {MatchKind}, {nameof(ExamineeName)} = {
+                ExamineeName.ToUIString()}, {nameof(ComparandName)} = {ComparandName.ToUIString()}";
     }
 }
