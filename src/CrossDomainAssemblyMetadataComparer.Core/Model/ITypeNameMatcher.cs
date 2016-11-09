@@ -6,7 +6,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
     public interface ITypeNameMatcher
     {
-        [CanBeNull]
+        [NotNull]
         TypeMatch FindMatchingType([NotNull] Type type);
     }
 }

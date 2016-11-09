@@ -8,11 +8,16 @@ namespace CrossDomainAssemblyMetadataComparer.Core
     internal static class InternalHelper
     {
         [NotNull]
-        public static object[] GetOrdinalEnumValues(Type enumType)
+        public static object[] GetOrdinalEnumValues(this Type enumType)
         {
             if (enumType == null)
             {
                 throw new ArgumentNullException(nameof(enumType));
+            }
+
+            if (!enumType.IsEnum)
+            {
+                throw new ArgumentException($"The type '{enumType}' is not an enumeration.", nameof(enumType));
             }
 
             var values = Enum.GetValues(enumType);
@@ -28,11 +33,16 @@ namespace CrossDomainAssemblyMetadataComparer.Core
         }
 
         [CanBeNull]
-        public static string GetEnumName([NotNull] Type enumType, [NotNull] object value)
+        public static string GetEnumName([NotNull] this Type enumType, [NotNull] object value)
         {
             if (enumType == null)
             {
                 throw new ArgumentNullException(nameof(enumType));
+            }
+
+            if (!enumType.IsEnum)
+            {
+                throw new ArgumentException($"The type '{enumType}' is not an enumeration.", nameof(enumType));
             }
 
             if (value == null)
@@ -44,14 +54,19 @@ namespace CrossDomainAssemblyMetadataComparer.Core
         }
 
         [NotNull]
-        public static Type[] GetEnumTypes([NotNull] this ICollection<Type> examineeTypes)
+        public static Type[] GetEnumTypes([NotNull] this ICollection<Type> types)
         {
-            if (examineeTypes == null)
+            if (types == null)
             {
-                throw new ArgumentNullException(nameof(examineeTypes));
+                throw new ArgumentNullException(nameof(types));
             }
 
-            return examineeTypes.Where(t => t.IsEnum).ToArray();
+            if (types.Any(item => item == null))
+            {
+                throw new ArgumentException(@"The collection contains a null element.", nameof(types));
+            }
+
+            return types.Where(t => t.IsEnum).ToArray();
         }
     }
 }

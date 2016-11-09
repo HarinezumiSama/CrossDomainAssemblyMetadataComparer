@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CrossDomainAssemblyMetadataComparer.Core.Model;
 using JetBrains.Annotations;
+using Omnifactotum;
 
 namespace CrossDomainAssemblyMetadataComparer.Core
 {
@@ -72,7 +73,8 @@ namespace CrossDomainAssemblyMetadataComparer.Core
             return new MetadataComparisonResult(enumComparisonResult);
         }
 
-        private EnumComparisonResult ProcessEnums(
+        [NotNull]
+        private ICollection<EnumComparisonResult> ProcessEnums(
             [NotNull] ICollection<Type> examineeTypes,
             [NotNull] ICollection<Type> comparandTypes)
         {
@@ -81,18 +83,58 @@ namespace CrossDomainAssemblyMetadataComparer.Core
 
             var typeNameMatcher = Parameters.CreateTypeNameMatcher(comparandEnums);
 
+            var enumComparisonResults = new List<EnumComparisonResult>(examineeEnums.Length);
             foreach (var examineeEnum in examineeEnums)
             {
-                var match = typeNameMatcher.FindMatchingType(examineeEnum);
-                if (match == null)
+                var typeMatch = typeNameMatcher.FindMatchingType(examineeEnum);
+
+                ICollection<EnumValueComparisonResult> valueComparisonResults;
+                switch (typeMatch.Kind)
                 {
-                    //// TODO [vmaklai] Implement ProcessEnums
+                    case TypeMatchKind.Strict:
+                    case TypeMatchKind.CaseInsensitive:
+                    case TypeMatchKind.UserDefined:
+                        var comparandEnum = typeMatch.FoundTypes.Single();
+                        valueComparisonResults = ProcessEnumValues(examineeEnum, comparandEnum);
+                        break;
+
+                    case TypeMatchKind.Ambiguous:
+                    case TypeMatchKind.None:
+                        valueComparisonResults = new EnumValueComparisonResult[0];
+                        break;
+
+                    default:
+                        throw typeMatch.Kind.CreateEnumValueNotImplementedException();
                 }
 
-                //// TODO [vmaklai] Implement ProcessEnums
+                var enumComparisonResult = new EnumComparisonResult(typeMatch, valueComparisonResults);
+                enumComparisonResults.Add(enumComparisonResult);
             }
 
-            return new EnumComparisonResult();
+            return enumComparisonResults;
+        }
+
+        [NotNull]
+        private ICollection<EnumValueComparisonResult> ProcessEnumValues(
+            [NotNull] Type examineeEnum,
+            [NotNull] Type comparandEnum)
+        {
+            var examineeValues = examineeEnum.GetOrdinalEnumValues();
+            var comparandValues = comparandEnum.GetOrdinalEnumValues();
+
+            var allValues = examineeValues.Concat(comparandValues).Distinct().OrderBy(Factotum.Identity).ToArray();
+
+            var results = allValues
+                .Select(
+                    value =>
+                    {
+                        var examineeName = examineeEnum.GetEnumName(value);
+                        var comparandName = comparandEnum.GetEnumName(value);
+                        return new EnumValueComparisonResult(examineeName, comparandName);
+                    })
+                .ToArray();
+
+            return results;
         }
     }
 }

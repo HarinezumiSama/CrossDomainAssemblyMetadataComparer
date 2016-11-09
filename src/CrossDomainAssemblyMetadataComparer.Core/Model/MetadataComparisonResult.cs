@@ -1,22 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
     public sealed class MetadataComparisonResult
     {
-        internal MetadataComparisonResult([NotNull] EnumComparisonResult enumComparisonResult)
+        internal MetadataComparisonResult([NotNull] ICollection<EnumComparisonResult> enumComparisonResults)
         {
-            if (enumComparisonResult == null)
+            if (enumComparisonResults == null)
             {
-                throw new ArgumentNullException(nameof(enumComparisonResult));
+                throw new ArgumentNullException(nameof(enumComparisonResults));
             }
 
-            EnumComparisonResult = enumComparisonResult;
+            if (enumComparisonResults.Any(item => item == null))
+            {
+                throw new ArgumentException(@"The collection contains a null element.", nameof(enumComparisonResults));
+            }
+
+            EnumComparisonResults = enumComparisonResults.ToArray().AsReadOnly();
         }
 
         [NotNull]
-        public EnumComparisonResult EnumComparisonResult
+        public ReadOnlyCollection<EnumComparisonResult> EnumComparisonResults
         {
             get;
         }

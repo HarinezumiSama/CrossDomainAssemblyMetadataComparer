@@ -3,6 +3,11 @@
     public enum TypeMatchKind
     {
         /// <summary>
+        ///     No matching type was found.
+        /// </summary>
+        None,
+
+        /// <summary>
         ///     A single type with exactly the same name was found.
         /// </summary>
         Strict,
