@@ -112,7 +112,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core
             var examineeEnums = examineeTypes.GetEnumTypes();
             var comparandEnums = comparandTypes.GetEnumTypes();
 
-            var typeNameMatcher = Parameters.CreateTypeNameMatcher(comparandEnums);
+            var typeNameMatcher = Parameters.CreateTypeNameMatcherEnsured(comparandEnums);
 
             var enumComparisonResults = new List<EnumComparisonResult>(examineeEnums.Length);
             foreach (var examineeEnum in examineeEnums)
