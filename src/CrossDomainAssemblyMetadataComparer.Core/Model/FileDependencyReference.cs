@@ -1,17 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using JetBrains.Annotations;
 
 namespace CrossDomainAssemblyMetadataComparer.Core.Model
 {
-    public sealed class FileSystemAssemblyReference : AssemblyReference
+    public sealed class FileDependencyReference : DependencyReference
     {
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FileSystemAssemblyReference"/> class
-        ///     using the specified <see cref="FileInfo"/>.
-        /// </summary>
-        public FileSystemAssemblyReference([NotNull] FileInfo fileInfo)
+        public FileDependencyReference([NotNull] FileInfo fileInfo)
         {
             if (fileInfo == null)
             {
@@ -21,11 +16,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             FileInfo = fileInfo;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FileSystemAssemblyReference"/> class
-        ///     using the specified file path.
-        /// </summary>
-        public FileSystemAssemblyReference([NotNull] string filePath)
+        public FileDependencyReference([NotNull] string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -48,6 +39,6 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
         [NotNull]
         public string FilePath => FileInfo.FullName;
 
-        protected override Assembly LoadAssembly() => Assembly.LoadFrom(FilePath);
+        protected override string[] ResolveFilePaths() => FilePath.AsArray();
     }
 }

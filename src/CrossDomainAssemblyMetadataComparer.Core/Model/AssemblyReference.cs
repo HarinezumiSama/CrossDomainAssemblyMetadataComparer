@@ -12,7 +12,7 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             get;
         }
 
-        public sealed override string ToString() => AsString;
+        public sealed override string ToString() => $@"{{ {GetType().GetQualifiedName()}: {AsString} }}";
 
         [NotNull]
         public Assembly Load()
@@ -25,14 +25,12 @@ namespace CrossDomainAssemblyMetadataComparer.Core.Model
             catch (Exception ex)
                 when (!ex.IsFatal())
             {
-                throw new InvalidOperationException(
-                    $@"Error has occurred resolving the assembly reference {AsString}.",
-                    ex);
+                throw new InvalidOperationException($@"Error has occurred resolving {AsString}.", ex);
             }
 
             if (assembly == null)
             {
-                throw new InvalidOperationException($@"The assembly reference {AsString} was resolved to null.");
+                throw new InvalidOperationException($@"{AsString} was resolved to null.");
             }
 
             return assembly;

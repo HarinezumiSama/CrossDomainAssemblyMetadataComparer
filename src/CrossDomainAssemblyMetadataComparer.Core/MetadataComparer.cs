@@ -90,15 +90,18 @@ namespace CrossDomainAssemblyMetadataComparer.Core
 
         public MetadataComparisonResult Compare()
         {
-            var examineeAssembly = ExamineeAssemblyReference.Load();
-            var comparandAssemblies = ComparandAssemblyReferences.Select(reference => reference.Load()).ToArray();
+            using (AssemblyReferenceResolver.Create(Parameters.DependencyReferences))
+            {
+                var examineeAssembly = ExamineeAssemblyReference.Load();
+                var comparandAssemblies = ComparandAssemblyReferences.Select(reference => reference.Load()).ToArray();
 
-            var examineeTypes = examineeAssembly.GetTypes();
-            var comparandTypes = comparandAssemblies.SelectMany(assembly => assembly.GetTypes()).ToArray();
+                var examineeTypes = examineeAssembly.GetTypes();
+                var comparandTypes = comparandAssemblies.SelectMany(assembly => assembly.GetTypes()).ToArray();
 
-            var enumComparisonResult = ProcessEnums(examineeTypes, comparandTypes);
+                var enumComparisonResult = ProcessEnums(examineeTypes, comparandTypes);
 
-            return new MetadataComparisonResult(enumComparisonResult);
+                return new MetadataComparisonResult(enumComparisonResult);
+            }
         }
 
         [NotNull]

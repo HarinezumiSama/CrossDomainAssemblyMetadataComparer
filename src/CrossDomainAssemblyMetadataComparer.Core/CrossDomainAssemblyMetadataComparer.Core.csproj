@@ -47,7 +47,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Internal\AssemblyReferenceResolver.cs" />
+    <Compile Include="Model\DependencyReference.cs" />
     <Compile Include="Model\AssemblyReference.cs" />
+    <Compile Include="Model\DirectoryDependencyReference.cs" />
+    <Compile Include="Model\FileDependencyReference.cs" />
     <Compile Include="Model\OverallMatchKind.cs" />
     <Compile Include="Model\TypeComparisonResult.cs" />
     <Compile Include="Model\EnumValueMatchKind.cs" />
@@ -55,7 +59,7 @@
     <Compile Include="Model\TypeNameMatcherCreator.cs" />
     <Compile Include="Model\DefaultTypeNameMatcher.cs" />
     <Compile Include="Model\FileSystemAssemblyReference.cs" />
-    <Compile Include="InternalHelper.cs" />
+    <Compile Include="Internal\InternalHelper.cs" />
     <Compile Include="MetadataComparer.cs" />
     <Compile Include="Model\MetadataComparisonParameters.cs" />
     <Compile Include="Model\EnumComparisonResult.cs" />
